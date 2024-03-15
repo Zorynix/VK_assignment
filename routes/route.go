@@ -22,7 +22,7 @@ func Routes(addr *string) {
 	router := Router{PG: postgres}
 
 	router.V1Routes()
-	fmt.Println("Starting server on port 8080...")
+	fmt.Println("Starting server on port 8000...")
 	if err := http.ListenAndServe(":8000", nil); err != nil {
 		log.Fatal("Can not start http server: ", err)
 	}

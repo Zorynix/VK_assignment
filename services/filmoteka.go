@@ -6,6 +6,7 @@ import (
 
 	"vk.com/m/dto"
 	"vk.com/m/models"
+	"vk.com/m/utils"
 )
 
 func (PG *Postgresql) ActorAdd(w http.ResponseWriter, r *http.Request) (*models.Actor, error) {
@@ -16,7 +17,9 @@ func (PG *Postgresql) ActorAdd(w http.ResponseWriter, r *http.Request) (*models.
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return nil, err
 	}
-	defer r.Body.Close()
+
+	formattedDate := utils.FormatTime(actor.DateOfBirth)
+	actor.DateOfBirth = formattedDate
 
 	if err := PG.db.Save(&actor).Error; err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -52,6 +55,17 @@ func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*dto.Mov
 
 	var data dto.Movies
 
+	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil, err
+	}
+	defer r.Body.Close()
+
+	if err := PG.db.Save(&data).Error; err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil, err
+	}
+
 	return &data, nil
 }
 
@@ -62,9 +76,9 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*dto.Mo
 	return &data, nil
 }
 
-func (PG *Postgresql) MovieFind(w http.ResponseWriter, r *http.Request) (*dto.ActorsMovies, error) {
+func (PG *Postgresql) MovieFind(w http.ResponseWriter, r *http.Request) (*dto.Movies, error) {
 
-	var data dto.ActorsMovies
+	var data dto.Movies
 
 	return &data, nil
 }
