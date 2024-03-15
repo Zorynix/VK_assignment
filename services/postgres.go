@@ -21,10 +21,7 @@ func NewPostgreSQL(ctx context.Context) (*Postgresql, error) {
 
 	DSN := os.Getenv("DSN")
 
-	conn, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  DSN,
-		PreferSimpleProtocol: true, // disables implicit prepared statement usage
-	}), &gorm.Config{})
+	conn, err := gorm.Open(postgres.Open(DSN), &gorm.Config{})
 
 	if err != nil {
 		log.Fatal().Interface("unable to create postgresql connection pool: %v", err).Msg("")

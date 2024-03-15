@@ -7,4 +7,5 @@ type Actor struct {
 	Name        string    `gorm:"type:varchar(255);not null"`
 	Gender      string    `gorm:"type:char(1)"`
 	DateOfBirth time.Time `gorm:"type:date"`
+	Movies      []*Movie  `gorm:"many2many:actor_movies"`
 }
