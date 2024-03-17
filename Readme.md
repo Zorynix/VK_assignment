@@ -15,4 +15,4 @@
 - [x] Dockerfile
 - [x] docker-compose
 - [x] logging
-- [ ] swagger
+- [x] swagger
