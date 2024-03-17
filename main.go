@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 
+	_ "vk.com/m/docs"
 	"vk.com/m/routes"
 	"vk.com/m/utils"
 )
@@ -15,4 +16,5 @@ func main() {
 	flag.Parse()
 	utils.InitLogger()
 	routes.Routes(addr)
+
 }

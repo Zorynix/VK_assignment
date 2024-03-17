@@ -21,9 +21,9 @@ import (
 //	@Produce		json
 //	@Param			movie	body		models.Movie	true	"Movie to add"
 //	@Success		200		{object}	models.Movie	"Successfully added the movie"
-//	@Failure		400		{string}	string			"Invalid request body"
-//	@Failure		500		{string}	string			"Error creating movie"
-//	@Router			/movie-add [post]
+//	@Failure		400		{object}	models.Movie	"Invalid request body"
+//	@Failure		500		{object}	models.Movie	"Error creating movie"
+//	@Router			/v1/movie-add [post]
 func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieAdd called")
@@ -58,10 +58,10 @@ func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.
 //	@Param			id		path		int						true	"Movie ID"
 //	@Param			updates	body		map[string]interface{}	true	"Fields to update"
 //	@Success		200		{object}	models.Movie			"Successfully updated the movie"
-//	@Failure		400		{string}	string					"Invalid request body or movie ID"
-//	@Failure		404		{string}	string					"Movie not found"
-//	@Failure		500		{string}	string					"Error saving movie"
-//	@Router			/movie-edit/{id} [put]
+//	@Failure		400		{object}	models.Movie			 "Invalid request body or movie ID"
+//	@Failure		404		{object}	models.Movie			 "Movie not found"
+//	@Failure		500		{object}	models.Movie			 "Error saving movie"
+//	@Router			/v1/movie-edit/{id} [put]
 func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieEdit called")
@@ -177,15 +177,14 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 // @Produce json
 // @Param sort query string false "Sort by [title|rating|releasedate], prepend '-' for descending order (default: '-rating')"
 // @Success 200 {array} models.Movie "Successfully retrieved all movies"
-// @Failure 500 {string} string "Error retrieving movie list"
-// @Router /movie-list [get]
+// @Failure 500 {array} models.Movie "Error retrieving movie list"
+// @Router /v1/movie-list [get]
 func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]models.Movie, error) {
 	log.Info().Msg("MovieList called")
 
 	var data []models.Movie
 	sortParam := r.URL.Query().Get("sort")
 
-	// Default sorting is by rating in descending order
 	sortOrder := "rating DESC"
 	if sortParam != "" {
 		// Map query parameters to database columns
@@ -198,7 +197,6 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 			"-releasedate": "release_date DESC",
 		}
 
-		// Check if the sort parameter is valid and set the sortOrder accordingly
 		if val, ok := sortFields[sortParam]; ok {
 			sortOrder = val
 		}
@@ -214,6 +212,47 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 	return &data, nil
 }
 
+// MovieFind godoc
+//
+// @Summary Searches for movies by title or actor name
+// @Description Searches for movies by a fragment of the title or by a fragment of an actor's name
+// @Tags movie
+// @Produce json
+// @Param title query string false "Fragment of the movie title"
+// @Param actor query string false "Fragment of the actor's name"
+// @Success 200 {array} models.Movie "Successfully found movies"
+// @Failure 400 {array} models.Movie  "Invalid query parameters"
+// @Failure 500 {array} models.Movie  "Error retrieving movie list"
+// @Router /v1/movie-find [get]
+func (PG *Postgresql) MovieFind(w http.ResponseWriter, r *http.Request) (*[]models.Movie, error) {
+
+	log.Info().Msg("MovieFind called")
+
+	var movies []models.Movie
+	title := r.URL.Query().Get("title")
+	actor := r.URL.Query().Get("actor")
+
+	query := PG.db.Model(&models.Movie{})
+
+	if title != "" {
+		query = query.Where("title ILIKE ?", "%"+title+"%")
+	}
+
+	if actor != "" {
+		query = query.Joins("JOIN actormovies ON actormovies.movie_id = movies.id").
+			Joins("JOIN actors ON actors.id = actormovies.actor_id").
+			Where("actors.name ILIKE ?", "%"+actor+"%")
+	}
+
+	if err := query.Preload("Actors").Find(&movies).Error; err != nil {
+		log.Error().Err(err).Msg("Error searching for movies")
+		http.Error(w, "Error searching for movies", http.StatusInternalServerError)
+		return nil, err
+	}
+
+	return &movies, nil
+}
+
 // MovieDelete godoc
 //
 //	@Summary		Deletes a movie
@@ -224,7 +263,7 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 //	@Success		200	{string}	string	"Successfully deleted the movie"
 //	@Failure		400	{string}	string	"Invalid movie ID or URL format"
 //	@Failure		500	{string}	string	"Movie not found or could not be deleted"
-//	@Router			/movie-delete/{id} [delete]
+//	@Router			/v1/movie-delete/{id} [delete]
 func (PG *Postgresql) MovieDelete(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieDelete called")

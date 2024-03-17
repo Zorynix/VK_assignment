@@ -41,6 +41,11 @@ func (router *Router) MovieListRoute(w http.ResponseWriter, r *http.Request) {
 	view.MovieListView()
 }
 
+func (router *Router) MovieFindRoute(w http.ResponseWriter, r *http.Request) {
+	view := views.View{W: w, R: r, PG: router.PG}
+	view.MovieFindView()
+}
+
 func (router *Router) MovieDeleteRoute(w http.ResponseWriter, r *http.Request) {
 	view := views.View{W: w, R: r, PG: router.PG}
 	view.MovieDeleteView()

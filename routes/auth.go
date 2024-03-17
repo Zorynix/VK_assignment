@@ -25,7 +25,7 @@ type LoginResponse struct {
 // @Param   LoginRequest  body      LoginRequest  true  "Login Credentials"
 // @Success 200 {object} LoginResponse "Returns login token"
 // @Failure 400,401 "Invalid request or Unauthorized"
-// @Router /login [post]
+// @Router /v1/login [post]
 func (router *Router) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

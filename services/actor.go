@@ -13,6 +13,7 @@ import (
 )
 
 // ActorAdd godoc
+//
 //	@Summary		Adds a new actor
 //	@Description	Adds a new actor with the given details
 //	@Tags			actor
@@ -20,9 +21,9 @@ import (
 //	@Produce		json
 //	@Param			actor	body		models.Actor	true	"Actor to add"
 //	@Success		200		{object}	models.Actor	"Successfully added the actor"
-//	@Failure		400		{string}	string			"Invalid request body"
-//	@Failure		500		{string}	string			"Error creating actor"
-//	@Router			/actor-add [post]
+//	@Failure		400		{object}	models.Actor	"Invalid request body"
+//	@Failure		500		{object}	models.Actor	"Error creating actor"
+//	@Router			/v1/actor-add [post]
 func (PG *Postgresql) ActorAdd(w http.ResponseWriter, r *http.Request) (*models.Actor, error) {
 
 	log.Info().Msg("ActorAdd called")
@@ -50,6 +51,7 @@ func (PG *Postgresql) ActorAdd(w http.ResponseWriter, r *http.Request) (*models.
 }
 
 // ActorEdit godoc
+//
 //	@Summary		Edits an existing actor
 //	@Description	Edits an actor with the specified ID based on the given update fields
 //	@Tags			actor
@@ -58,10 +60,10 @@ func (PG *Postgresql) ActorAdd(w http.ResponseWriter, r *http.Request) (*models.
 //	@Param			id		path		int						true	"Actor ID"
 //	@Param			updates	body		map[string]interface{}	true	"Fields to update"
 //	@Success		200		{object}	models.Actor			"Successfully updated the actor"
-//	@Failure		400		{string}	string					"Invalid request body or actor ID"
-//	@Failure		404		{string}	string					"Actor not found"
-//	@Failure		500		{string}	string					"Failed to save actor"
-//	@Router			/actor-edit/{id} [put]
+//	@Failure		400		{object}	models.Actor		    "Invalid request body or actor ID"
+//	@Failure		404		{object}	models.Actor			"Actor not found"
+//	@Failure		500		{object}	models.Actor			"Failed to save actor"
+//	@Router			/v1/actor-edit/{id} [put]
 func (PG *Postgresql) ActorEdit(w http.ResponseWriter, r *http.Request) (*models.Actor, error) {
 	log.Info().Msg("ActorEdit called")
 
@@ -163,13 +165,14 @@ func (PG *Postgresql) ActorEdit(w http.ResponseWriter, r *http.Request) (*models
 }
 
 // ActorList godoc
+//
 //	@Summary		Lists all actors
 //	@Description	Retrieves a list of all actors, including their associated movies
 //	@Tags			actor
 //	@Produce		json
 //	@Success		200	{array}		models.Actor	"Successfully retrieved all actors"
-//	@Failure		500	{string}	string			"Error retrieving actors"
-//	@Router			/actor-list [get]
+//	@Failure		500	{array}		models.Actor	"Error retrieving actors"
+//	@Router			/v1/actor-list [get]
 func (PG *Postgresql) ActorList(w http.ResponseWriter, r *http.Request) (*[]models.Actor, error) {
 	log.Info().Msg("ActorList called")
 
@@ -188,6 +191,7 @@ func (PG *Postgresql) ActorList(w http.ResponseWriter, r *http.Request) (*[]mode
 }
 
 // ActorDelete godoc
+//
 //	@Summary		Deletes an actor
 //	@Description	Deletes the actor with the specified ID, including removing all associated movies
 //	@Tags			actor
@@ -196,7 +200,7 @@ func (PG *Postgresql) ActorList(w http.ResponseWriter, r *http.Request) (*[]mode
 //	@Success		200	{string}	string	"Successfully deleted the actor"
 //	@Failure		400	{string}	string	"Invalid actor ID or URL format"
 //	@Failure		500	{string}	string	"Actor not found or could not be deleted"
-//	@Router			/actor-delete/{id} [delete]
+//	@Router			/v1/actor-delete/{id} [delete]
 func (PG *Postgresql) ActorDelete(w http.ResponseWriter, r *http.Request) (*models.Actor, error) {
 
 	log.Info().Msg("ActorDelete called")

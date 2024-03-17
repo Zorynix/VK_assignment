@@ -140,6 +140,21 @@ func (view *View) MovieListView() error {
 	return nil
 }
 
+func (view *View) MovieFindView() error {
+
+	log.Info().Msg("MovieFindView called")
+
+	data, err := view.PG.MovieFind(view.W, view.R)
+	if err != nil {
+		log.Error().Err(err).Msg("Error in MovieFind")
+		view.handleError(err, http.StatusBadGateway)
+		return err
+	}
+
+	view.respondWithJSON(data)
+	return nil
+}
+
 // MovieDeleteView oversees the HTTP request for deleting a specific movie.
 // The function logs the start of the deletion process, then attempts to delete the specified movie by invoking the MovieDelete method
 // on the PG interface. If this deletion process fails, due to reasons like the movie not existing or database constraints,

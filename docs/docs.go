@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/actor-add": {
+        "/v1/actor-add": {
             "post": {
                 "description": "Adds a new actor with the given details",
                 "consumes": [
@@ -49,19 +49,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request body",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Actor"
                         }
                     },
                     "500": {
                         "description": "Error creating actor",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Actor"
                         }
                     }
                 }
             }
         },
-        "/actor-delete/{id}": {
+        "/v1/actor-delete/{id}": {
             "delete": {
                 "description": "Deletes the actor with the specified ID, including removing all associated movies",
                 "produces": [
@@ -102,7 +102,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/actor-edit/{id}": {
+        "/v1/actor-edit/{id}": {
             "put": {
                 "description": "Edits an actor with the specified ID based on the given update fields",
                 "consumes": [
@@ -144,25 +144,25 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request body or actor ID",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Actor"
                         }
                     },
                     "404": {
                         "description": "Actor not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Actor"
                         }
                     },
                     "500": {
                         "description": "Failed to save actor",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Actor"
                         }
                     }
                 }
             }
         },
-        "/actor-list": {
+        "/v1/actor-list": {
             "get": {
                 "description": "Retrieves a list of all actors, including their associated movies",
                 "produces": [
@@ -185,13 +185,16 @@ const docTemplate = `{
                     "500": {
                         "description": "Error retrieving actors",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Actor"
+                            }
                         }
                     }
                 }
             }
         },
-        "/login": {
+        "/v1/login": {
             "post": {
                 "description": "handles login requests by checking username and password",
                 "consumes": [
@@ -228,7 +231,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/movie-add": {
+        "/v1/movie-add": {
             "post": {
                 "description": "Adds a new movie with the given details including title, description, release date, and rating",
                 "consumes": [
@@ -262,19 +265,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request body",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Movie"
                         }
                     },
                     "500": {
                         "description": "Error creating movie",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Movie"
                         }
                     }
                 }
             }
         },
-        "/movie-delete/{id}": {
+        "/v1/movie-delete/{id}": {
             "delete": {
                 "description": "Deletes the movie with the specified ID, including removing all associations with actors",
                 "produces": [
@@ -315,7 +318,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/movie-edit/{id}": {
+        "/v1/movie-edit/{id}": {
             "put": {
                 "description": "Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors",
                 "consumes": [
@@ -357,25 +360,80 @@ const docTemplate = `{
                     "400": {
                         "description": "Invalid request body or movie ID",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Movie"
                         }
                     },
                     "404": {
                         "description": "Movie not found",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Movie"
                         }
                     },
                     "500": {
                         "description": "Error saving movie",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/models.Movie"
                         }
                     }
                 }
             }
         },
-        "/movie-list": {
+        "/v1/movie-find": {
+            "get": {
+                "description": "Searches for movies by a fragment of the title or by a fragment of an actor's name",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Searches for movies by title or actor name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Fragment of the movie title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fragment of the actor's name",
+                        "name": "actor",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found movies",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Movie"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid query parameters",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Movie"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error retrieving movie list",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Movie"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/v1/movie-list": {
             "get": {
                 "description": "Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting.",
                 "produces": [
@@ -406,7 +464,10 @@ const docTemplate = `{
                     "500": {
                         "description": "Error retrieving movie list",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Movie"
+                            }
                         }
                     }
                 }

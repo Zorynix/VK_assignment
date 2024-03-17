@@ -46,7 +46,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /actor-add:
+  /v1/actor-add:
     post:
       consumes:
       - application/json
@@ -68,15 +68,15 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            type: string
+            $ref: '#/definitions/models.Actor'
         "500":
           description: Error creating actor
           schema:
-            type: string
+            $ref: '#/definitions/models.Actor'
       summary: Adds a new actor
       tags:
       - actor
-  /actor-delete/{id}:
+  /v1/actor-delete/{id}:
     delete:
       description: Deletes the actor with the specified ID, including removing all
         associated movies
@@ -104,7 +104,7 @@ paths:
       summary: Deletes an actor
       tags:
       - actor
-  /actor-edit/{id}:
+  /v1/actor-edit/{id}:
     put:
       consumes:
       - application/json
@@ -133,19 +133,19 @@ paths:
         "400":
           description: Invalid request body or actor ID
           schema:
-            type: string
+            $ref: '#/definitions/models.Actor'
         "404":
           description: Actor not found
           schema:
-            type: string
+            $ref: '#/definitions/models.Actor'
         "500":
           description: Failed to save actor
           schema:
-            type: string
+            $ref: '#/definitions/models.Actor'
       summary: Edits an existing actor
       tags:
       - actor
-  /actor-list:
+  /v1/actor-list:
     get:
       description: Retrieves a list of all actors, including their associated movies
       produces:
@@ -160,11 +160,13 @@ paths:
         "500":
           description: Error retrieving actors
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/models.Actor'
+            type: array
       summary: Lists all actors
       tags:
       - actor
-  /login:
+  /v1/login:
     post:
       consumes:
       - application/json
@@ -188,7 +190,7 @@ paths:
         "401":
           description: Invalid request or Unauthorized
       summary: User login
-  /movie-add:
+  /v1/movie-add:
     post:
       consumes:
       - application/json
@@ -211,15 +213,15 @@ paths:
         "400":
           description: Invalid request body
           schema:
-            type: string
+            $ref: '#/definitions/models.Movie'
         "500":
           description: Error creating movie
           schema:
-            type: string
+            $ref: '#/definitions/models.Movie'
       summary: Adds a new movie
       tags:
       - movie
-  /movie-delete/{id}:
+  /v1/movie-delete/{id}:
     delete:
       description: Deletes the movie with the specified ID, including removing all
         associations with actors
@@ -247,7 +249,7 @@ paths:
       summary: Deletes a movie
       tags:
       - movie
-  /movie-edit/{id}:
+  /v1/movie-edit/{id}:
     put:
       consumes:
       - application/json
@@ -276,19 +278,56 @@ paths:
         "400":
           description: Invalid request body or movie ID
           schema:
-            type: string
+            $ref: '#/definitions/models.Movie'
         "404":
           description: Movie not found
           schema:
-            type: string
+            $ref: '#/definitions/models.Movie'
         "500":
           description: Error saving movie
           schema:
-            type: string
+            $ref: '#/definitions/models.Movie'
       summary: Edits an existing movie
       tags:
       - movie
-  /movie-list:
+  /v1/movie-find:
+    get:
+      description: Searches for movies by a fragment of the title or by a fragment
+        of an actor's name
+      parameters:
+      - description: Fragment of the movie title
+        in: query
+        name: title
+        type: string
+      - description: Fragment of the actor's name
+        in: query
+        name: actor
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully found movies
+          schema:
+            items:
+              $ref: '#/definitions/models.Movie'
+            type: array
+        "400":
+          description: Invalid query parameters
+          schema:
+            items:
+              $ref: '#/definitions/models.Movie'
+            type: array
+        "500":
+          description: Error retrieving movie list
+          schema:
+            items:
+              $ref: '#/definitions/models.Movie'
+            type: array
+      summary: Searches for movies by title or actor name
+      tags:
+      - movie
+  /v1/movie-list:
     get:
       description: Retrieves a list of all movies, including their titles, descriptions,
         release dates, ratings, and associated actors with sorting.
@@ -310,7 +349,9 @@ paths:
         "500":
           description: Error retrieving movie list
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/models.Movie'
+            type: array
       summary: Lists all movies
       tags:
       - movie
