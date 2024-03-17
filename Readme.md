@@ -11,8 +11,8 @@
 
 
 - [ ] Unit tests (70%)(add)
-- [ ] roles
+- [x] roles
 - [x] Dockerfile
 - [x] docker-compose
 - [x] logging
-- [ ] swagger(fix)
+- [ ] swagger
