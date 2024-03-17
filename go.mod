@@ -19,6 +19,7 @@ require (
 	github.com/go-openapi/swag v0.23.0 // indirect
 	github.com/go-pg/pg/v10 v10.12.0 // indirect
 	github.com/go-pg/zerochecker v0.2.0 // indirect
+	github.com/golang-jwt/jwt/v5 v5.2.1 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgservicefile v0.0.0-20221227161230-091c0ba34f0a // indirect
 	github.com/jackc/pgx/v5 v5.4.3 // indirect

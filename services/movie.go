@@ -82,7 +82,7 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		return nil, err
 	}
 
-	log.Debug().Int("actorID", movieID).Msg("Fetching actor from database")
+	log.Debug().Int("movieID", movieID).Msg("Fetching movie from database")
 	if err := PG.db.Preload("Actors").First(&data, "id = ?", movieID).Error; err != nil {
 		log.Error().Err(err).Msg("Movie not found")
 		http.Error(w, "Movie not found", http.StatusNotFound)
@@ -148,10 +148,15 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		}
 
 		if len(actorsToAdd) > 0 {
-			PG.db.Model(&data).Association("Movies").Append(actorsToAdd)
+			if err := PG.db.Model(&data).Association("Actors").Append(actorsToAdd); err != nil {
+				log.Error().Err(err).Msg("Failed to add actors")
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+				return nil, err
+			}
 		}
 		if len(actorsToRemove) > 0 {
-			PG.db.Model(&data).Association("Movies").Delete(actorsToRemove)
+			log.Debug().Interface("actorsToRemove", actorsToAdd).Msg("Removing actors to movie")
+			PG.db.Model(&data).Association("Actors").Delete(actorsToRemove)
 		}
 	}
 

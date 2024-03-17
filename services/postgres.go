@@ -31,6 +31,8 @@ func NewPostgreSQL(ctx context.Context) (*Postgresql, error) {
 		log.Fatal().Interface("unable to create postgresql connection pool: %v", err).Msg("")
 	}
 
+	conn = conn.Debug()
+
 	conn.Exec("SET search_path TO vk")
 
 	err = conn.AutoMigrate(&models.Actor{}, &models.Movie{})

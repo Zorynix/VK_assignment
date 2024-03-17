@@ -31,6 +31,18 @@ definitions:
       title:
         type: string
     type: object
+  routes.LoginRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+  routes.LoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
 info:
   contact: {}
 paths:
@@ -152,6 +164,30 @@ paths:
       summary: Lists all actors
       tags:
       - actor
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: handles login requests by checking username and password
+      parameters:
+      - description: Login Credentials
+        in: body
+        name: LoginRequest
+        required: true
+        schema:
+          $ref: '#/definitions/routes.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Returns login token
+          schema:
+            $ref: '#/definitions/routes.LoginResponse'
+        "400":
+          description: Invalid request or Unauthorized
+        "401":
+          description: Invalid request or Unauthorized
+      summary: User login
   /movie-add:
     post:
       consumes:
