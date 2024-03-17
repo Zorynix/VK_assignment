@@ -1,0 +1,281 @@
+definitions:
+  models.Actor:
+    properties:
+      dateOfBirth:
+        type: string
+      gender:
+        type: string
+      id:
+        type: integer
+      movies:
+        items:
+          $ref: '#/definitions/models.Movie'
+        type: array
+      name:
+        type: string
+    type: object
+  models.Movie:
+    properties:
+      actors:
+        items:
+          $ref: '#/definitions/models.Actor'
+        type: array
+      description:
+        type: string
+      id:
+        type: integer
+      rating:
+        type: number
+      releaseDate:
+        type: string
+      title:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /actor-add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new actor with the given details
+      parameters:
+      - description: Actor to add
+        in: body
+        name: actor
+        required: true
+        schema:
+          $ref: '#/definitions/models.Actor'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added the actor
+          schema:
+            $ref: '#/definitions/models.Actor'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Error creating actor
+          schema:
+            type: string
+      summary: Adds a new actor
+      tags:
+      - actor
+  /actor-delete/{id}:
+    delete:
+      description: Deletes the actor with the specified ID, including removing all
+        associated movies
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted the actor
+          schema:
+            type: string
+        "400":
+          description: Invalid actor ID or URL format
+          schema:
+            type: string
+        "500":
+          description: Actor not found or could not be deleted
+          schema:
+            type: string
+      summary: Deletes an actor
+      tags:
+      - actor
+  /actor-edit/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Edits an actor with the specified ID based on the given update
+        fields
+      parameters:
+      - description: Actor ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: updates
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated the actor
+          schema:
+            $ref: '#/definitions/models.Actor'
+        "400":
+          description: Invalid request body or actor ID
+          schema:
+            type: string
+        "404":
+          description: Actor not found
+          schema:
+            type: string
+        "500":
+          description: Failed to save actor
+          schema:
+            type: string
+      summary: Edits an existing actor
+      tags:
+      - actor
+  /actor-list:
+    get:
+      description: Retrieves a list of all actors, including their associated movies
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all actors
+          schema:
+            items:
+              $ref: '#/definitions/models.Actor'
+            type: array
+        "500":
+          description: Error retrieving actors
+          schema:
+            type: string
+      summary: Lists all actors
+      tags:
+      - actor
+  /movie-add:
+    post:
+      consumes:
+      - application/json
+      description: Adds a new movie with the given details including title, description,
+        release date, and rating
+      parameters:
+      - description: Movie to add
+        in: body
+        name: movie
+        required: true
+        schema:
+          $ref: '#/definitions/models.Movie'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully added the movie
+          schema:
+            $ref: '#/definitions/models.Movie'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "500":
+          description: Error creating movie
+          schema:
+            type: string
+      summary: Adds a new movie
+      tags:
+      - movie
+  /movie-delete/{id}:
+    delete:
+      description: Deletes the movie with the specified ID, including removing all
+        associations with actors
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully deleted the movie
+          schema:
+            type: string
+        "400":
+          description: Invalid movie ID or URL format
+          schema:
+            type: string
+        "500":
+          description: Movie not found or could not be deleted
+          schema:
+            type: string
+      summary: Deletes a movie
+      tags:
+      - movie
+  /movie-edit/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Edits a movie with the specified ID based on the given update fields
+        such as title, description, release date, rating, and associated actors
+      parameters:
+      - description: Movie ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Fields to update
+        in: body
+        name: updates
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully updated the movie
+          schema:
+            $ref: '#/definitions/models.Movie'
+        "400":
+          description: Invalid request body or movie ID
+          schema:
+            type: string
+        "404":
+          description: Movie not found
+          schema:
+            type: string
+        "500":
+          description: Error saving movie
+          schema:
+            type: string
+      summary: Edits an existing movie
+      tags:
+      - movie
+  /movie-list:
+    get:
+      description: Retrieves a list of all movies, including their titles, descriptions,
+        release dates, ratings, and associated actors with sorting.
+      parameters:
+      - description: 'Sort by [title|rating|releasedate], prepend ''-'' for descending
+          order (default: ''-rating'')'
+        in: query
+        name: sort
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully retrieved all movies
+          schema:
+            items:
+              $ref: '#/definitions/models.Movie'
+            type: array
+        "500":
+          description: Error retrieving movie list
+          schema:
+            type: string
+      summary: Lists all movies
+      tags:
+      - movie
+swagger: "2.0"
