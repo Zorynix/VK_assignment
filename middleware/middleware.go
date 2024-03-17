@@ -9,6 +9,13 @@ import (
 	"vk.com/m/auth"
 )
 
+// AuthMiddleware is a middleware for JWT authentication
+// @Summary JWT Authentication Middleware
+// @Description It validates the JWT token and ensures the role is allowed to access the endpoint
+// @Param Authorization header string true "Bearer [JWT token]"
+// @Success 200 "Access granted"
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
 func AuthMiddleware(next http.Handler, allowedRoles ...string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		authHeaderParts := strings.Split(r.Header.Get("Authorization"), " ")

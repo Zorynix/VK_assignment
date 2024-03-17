@@ -17,6 +17,15 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
+// LoginHandler handles user login requests
+// @Summary User login
+// @Description handles login requests by checking username and password
+// @Accept  json
+// @Produce  json
+// @Param   LoginRequest  body      LoginRequest  true  "Login Credentials"
+// @Success 200 {object} LoginResponse "Returns login token"
+// @Failure 400,401 "Invalid request or Unauthorized"
+// @Router /login [post]
 func (router *Router) LoginHandler(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {

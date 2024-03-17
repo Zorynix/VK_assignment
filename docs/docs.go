@@ -191,6 +191,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "handles login requests by checking username and password",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "User login",
+                "parameters": [
+                    {
+                        "description": "Login Credentials",
+                        "name": "LoginRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/routes.LoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns login token",
+                        "schema": {
+                            "$ref": "#/definitions/routes.LoginResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request or Unauthorized"
+                    },
+                    "401": {
+                        "description": "Invalid request or Unauthorized"
+                    }
+                }
+            }
+        },
         "/movie-add": {
             "post": {
                 "description": "Adds a new movie with the given details including title, description, release date, and rating",
@@ -422,6 +459,25 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.LoginRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "routes.LoginResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }
