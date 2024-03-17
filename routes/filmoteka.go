@@ -36,11 +36,6 @@ func (router *Router) MovieEditRoute(w http.ResponseWriter, r *http.Request) {
 	view.MovieEditView()
 }
 
-func (router *Router) MovieFindRoute(w http.ResponseWriter, r *http.Request) {
-	view := views.View{W: w, R: r, PG: router.PG}
-	view.MovieFindView()
-}
-
 func (router *Router) MovieListRoute(w http.ResponseWriter, r *http.Request) {
 	view := views.View{W: w, R: r, PG: router.PG}
 	view.MovieListView()

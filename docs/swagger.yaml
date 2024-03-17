@@ -252,33 +252,16 @@ paths:
       summary: Edits an existing movie
       tags:
       - movie
-  /movie-find/{id}:
-    get:
-      description: Retrieves a movie by its ID including details and associated actors
-      parameters:
-      - description: Movie ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Successfully found the movie
-          schema:
-            $ref: '#/definitions/models.Movie'
-        "404":
-          description: Movie not found
-          schema:
-            type: string
-      summary: Finds a specific movie
-      tags:
-      - movie
   /movie-list:
     get:
       description: Retrieves a list of all movies, including their titles, descriptions,
-        release dates, ratings, and associated actors
+        release dates, ratings, and associated actors with sorting.
+      parameters:
+      - description: 'Sort by [title|rating|releasedate], prepend ''-'' for descending
+          order (default: ''-rating'')'
+        in: query
+        name: sort
+        type: string
       produces:
       - application/json
       responses:

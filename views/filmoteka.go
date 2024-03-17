@@ -120,25 +120,6 @@ func (view *View) MovieEditView() error {
 	return nil
 }
 
-// MovieFindView processes the HTTP request to find a specific movie by its identifier.
-// Upon activation, it logs the request, then queries the database for the movie using the MovieFind method on the PG interface.
-// If the query encounters any errors, such as the movie not being found, it logs this issue, sends a 502 Bad Gateway response to the client,
-// and returns the encountered error. If the movie is found, it formats and sends the movie details in JSON format as the response.
-func (view *View) MovieFindView() error {
-
-	log.Info().Msg("MovieFindView called")
-
-	data, err := view.PG.MovieFind(view.W, view.R)
-	if err != nil {
-		log.Error().Err(err).Msg("Error in MovieFind")
-		view.handleError(err, http.StatusBadGateway)
-		return err
-	}
-
-	view.respondWithJSON(data)
-	return nil
-}
-
 // MovieListView manages the HTTP request to list all movies stored in the database.
 // It begins by logging its execution, then retrieves the list of all movies through the MovieList method on the PG interface.
 // Should any errors arise during this retrieval process, it logs the error, responds to the HTTP request with a 502 Bad Gateway status,

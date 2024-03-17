@@ -338,44 +338,9 @@ const docTemplate = `{
                 }
             }
         },
-        "/movie-find/{id}": {
-            "get": {
-                "description": "Retrieves a movie by its ID including details and associated actors",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "movie"
-                ],
-                "summary": "Finds a specific movie",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Movie ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Successfully found the movie",
-                        "schema": {
-                            "$ref": "#/definitions/models.Movie"
-                        }
-                    },
-                    "404": {
-                        "description": "Movie not found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/movie-list": {
             "get": {
-                "description": "Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors",
+                "description": "Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting.",
                 "produces": [
                     "application/json"
                 ],
@@ -383,6 +348,14 @@ const docTemplate = `{
                     "movie"
                 ],
                 "summary": "Lists all movies",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Sort by [title|rating|releasedate], prepend '-' for descending order (default: '-rating')",
+                        "name": "sort",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved all movies",

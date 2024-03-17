@@ -13,6 +13,7 @@ import (
 )
 
 // MovieAdd godoc
+//
 //	@Summary		Adds a new movie
 //	@Description	Adds a new movie with the given details including title, description, release date, and rating
 //	@Tags			movie
@@ -48,6 +49,7 @@ func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.
 }
 
 // MovieEdit godoc
+//
 //	@Summary		Edits an existing movie
 //	@Description	Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors
 //	@Tags			movie
@@ -80,6 +82,7 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		return nil, err
 	}
 
+	log.Debug().Int("actorID", movieID).Msg("Fetching actor from database")
 	if err := PG.db.Preload("Actors").First(&data, "id = ?", movieID).Error; err != nil {
 		log.Error().Err(err).Msg("Movie not found")
 		http.Error(w, "Movie not found", http.StatusNotFound)
@@ -90,6 +93,13 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 	if err := json.NewDecoder(r.Body).Decode(&updates); err != nil {
 		log.Error().Err(err).Msg("Error decoding updates")
 		http.Error(w, err.Error(), http.StatusBadRequest)
+		return nil, err
+	}
+
+	log.Debug().Interface("updates", updates).Msg("Applying updates to movie")
+	if err := PG.db.First(&data, "id = ?", movieID).Error; err != nil {
+		log.Error().Err(err).Msg("Movie not found for updating")
+		http.Error(w, "Movie not found", http.StatusNotFound)
 		return nil, err
 	}
 
@@ -113,12 +123,6 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 				data.Rating = rating
 			}
 		}
-	}
-
-	if err := PG.db.Save(&data).Error; err != nil {
-		log.Error().Err(err).Msg("Error saving movie")
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return nil, err
 	}
 
 	if actorIDsInterface, ok := updates["actors"].([]interface{}); ok {
@@ -151,43 +155,51 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		}
 	}
 
+	if err := PG.db.Save(&data).Error; err != nil {
+		log.Error().Err(err).Msg("Error saving movie")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return nil, err
+	}
+
 	log.Info().Int("movieID", movieID).Msg("Movie successfully updated")
 	return &data, nil
 }
 
-// MovieFind godoc
-//	@Summary		Finds a specific movie
-//	@Description	Retrieves a movie by its ID including details and associated actors
-//	@Tags			movie
-//	@Produce		json
-//	@Param			id	path		int				true	"Movie ID"
-//	@Success		200	{object}	models.Movie	"Successfully found the movie"
-//	@Failure		404	{string}	string			"Movie not found"
-//	@Router			/movie-find/{id} [get]
-func (PG *Postgresql) MovieFind(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
-
-	log.Info().Msg("MovieFind called")
-
-	var data models.Movie
-
-	return &data, nil
-}
-
 // MovieList godoc
-//	@Summary		Lists all movies
-//	@Description	Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors
-//	@Tags			movie
-//	@Produce		json
-//	@Success		200	{array}		models.Movie	"Successfully retrieved all movies"
-//	@Failure		500	{string}	string			"Error retrieving movie list"
-//	@Router			/movie-list [get]
+// @Summary Lists all movies
+// @Description Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting.
+// @Tags movie
+// @Produce json
+// @Param sort query string false "Sort by [title|rating|releasedate], prepend '-' for descending order (default: '-rating')"
+// @Success 200 {array} models.Movie "Successfully retrieved all movies"
+// @Failure 500 {string} string "Error retrieving movie list"
+// @Router /movie-list [get]
 func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]models.Movie, error) {
-
 	log.Info().Msg("MovieList called")
 
 	var data []models.Movie
+	sortParam := r.URL.Query().Get("sort")
 
-	if err := PG.db.Preload("Actors").Find(&data).Error; err != nil {
+	// Default sorting is by rating in descending order
+	sortOrder := "rating DESC"
+	if sortParam != "" {
+		// Map query parameters to database columns
+		sortFields := map[string]string{
+			"title":        "title",
+			"-title":       "title DESC",
+			"rating":       "rating",
+			"-rating":      "rating DESC",
+			"releasedate":  "release_date",
+			"-releasedate": "release_date DESC",
+		}
+
+		// Check if the sort parameter is valid and set the sortOrder accordingly
+		if val, ok := sortFields[sortParam]; ok {
+			sortOrder = val
+		}
+	}
+
+	if err := PG.db.Preload("Actors").Order(sortOrder).Find(&data).Error; err != nil {
 		log.Error().Err(err).Msg("Error retrieving movie list")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil, err
@@ -198,6 +210,7 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 }
 
 // MovieDelete godoc
+//
 //	@Summary		Deletes a movie
 //	@Description	Deletes the movie with the specified ID, including removing all associations with actors
 //	@Tags			movie
