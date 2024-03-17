@@ -10,7 +10,7 @@
 - [ ] Find movie (add)
 
 
-- [ ] Unit tests (70%)(add)
+- [ ] Unit tests (70%)
 - [x] roles
 - [x] Dockerfile
 - [x] docker-compose
