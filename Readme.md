@@ -10,7 +10,7 @@
 - [x] Search movie
 
 
-- [ ] Unit tests
+- [x] Unit tests
 - [x] roles
 - [x] Dockerfile
 - [x] docker-compose
