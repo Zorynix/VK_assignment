@@ -5,7 +5,7 @@
 - [x] Delete actors
 - [x] Get movies
 - [x] Post movies
-- [ ] Put movies (fix)
+- [x] Put movies
 - [x] Delete movies
 - [ ] Find movie (add)
 
