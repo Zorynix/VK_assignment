@@ -15,9 +15,14 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/actor-add": {
+        "/v1/actor-add": {
             "post": {
-                "description": "Adds a new actor with the given details",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Adds a new actor with the given details. Requires 'admin' role.",
                 "consumes": [
                     "application/json"
                 ],
@@ -29,6 +34,13 @@ const docTemplate = `{
                 ],
                 "summary": "Adds a new actor",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Actor to add",
                         "name": "actor",
@@ -47,23 +59,28 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid request body"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "500": {
-                        "description": "Error creating actor",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Error creating actor"
                     }
                 }
             }
         },
-        "/actor-delete/{id}": {
+        "/v1/actor-delete/{id}": {
             "delete": {
-                "description": "Deletes the actor with the specified ID, including removing all associated movies",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes the actor with the specified ID, including removing all associated movies. Requires 'admin' role.",
                 "produces": [
                     "application/json"
                 ],
@@ -72,6 +89,13 @@ const docTemplate = `{
                 ],
                 "summary": "Deletes an actor",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Actor ID",
@@ -82,29 +106,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted the actor",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Successfully deleted the actor"
                     },
                     "400": {
-                        "description": "Invalid actor ID or URL format",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid actor ID or URL format"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "500": {
-                        "description": "Actor not found or could not be deleted",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Actor not found or could not be deleted"
                     }
                 }
             }
         },
-        "/actor-edit/{id}": {
+        "/v1/actor-edit/{id}": {
             "put": {
-                "description": "Edits an actor with the specified ID based on the given update fields",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Edits an actor with the specified ID based on the given update fields. Requires 'admin' role.",
                 "consumes": [
                     "application/json"
                 ],
@@ -116,6 +142,13 @@ const docTemplate = `{
                 ],
                 "summary": "Edits an existing actor",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Actor ID",
@@ -142,29 +175,31 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body or actor ID",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid request body or actor ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "404": {
-                        "description": "Actor not found",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Actor not found"
                     },
                     "500": {
-                        "description": "Failed to save actor",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Failed to save actor"
                     }
                 }
             }
         },
-        "/actor-list": {
+        "/v1/actor-list": {
             "get": {
-                "description": "Retrieves a list of all actors, including their associated movies",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of all actors, including their associated movies. Available to both 'admin' and 'user' roles.",
                 "produces": [
                     "application/json"
                 ],
@@ -172,6 +207,15 @@ const docTemplate = `{
                     "actor"
                 ],
                 "summary": "Lists all actors",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Successfully retrieved all actors",
@@ -182,16 +226,19 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
+                    },
                     "500": {
-                        "description": "Error retrieving actors",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Error retrieving actors"
                     }
                 }
             }
         },
-        "/login": {
+        "/v1/login": {
             "post": {
                 "description": "handles login requests by checking username and password",
                 "consumes": [
@@ -228,9 +275,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/movie-add": {
+        "/v1/movie-add": {
             "post": {
-                "description": "Adds a new movie with the given details including title, description, release date, and rating",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Adds a new movie with the given details including title, description, release date, and rating. Requires 'admin' role.",
                 "consumes": [
                     "application/json"
                 ],
@@ -242,6 +294,13 @@ const docTemplate = `{
                 ],
                 "summary": "Adds a new movie",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "description": "Movie to add",
                         "name": "movie",
@@ -260,23 +319,28 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid request body"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "500": {
-                        "description": "Error creating movie",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Error creating movie"
                     }
                 }
             }
         },
-        "/movie-delete/{id}": {
+        "/v1/movie-delete/{id}": {
             "delete": {
-                "description": "Deletes the movie with the specified ID, including removing all associations with actors",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Deletes the movie with the specified ID, including removing all associations with actors. Requires 'admin' role.",
                 "produces": [
                     "application/json"
                 ],
@@ -285,6 +349,13 @@ const docTemplate = `{
                 ],
                 "summary": "Deletes a movie",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Movie ID",
@@ -295,29 +366,31 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Successfully deleted the movie",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Successfully deleted the movie"
                     },
                     "400": {
-                        "description": "Invalid movie ID or URL format",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid movie ID or URL format"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "500": {
-                        "description": "Movie not found or could not be deleted",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Movie not found or could not be deleted"
                     }
                 }
             }
         },
-        "/movie-edit/{id}": {
+        "/v1/movie-edit/{id}": {
             "put": {
-                "description": "Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors. Requires 'admin' role.",
                 "consumes": [
                     "application/json"
                 ],
@@ -329,6 +402,13 @@ const docTemplate = `{
                 ],
                 "summary": "Edits an existing movie",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "integer",
                         "description": "Movie ID",
@@ -355,29 +435,89 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid request body or movie ID",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Invalid request body or movie ID"
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
                     },
                     "404": {
-                        "description": "Movie not found",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Movie not found"
                     },
                     "500": {
-                        "description": "Error saving movie",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Error saving movie"
                     }
                 }
             }
         },
-        "/movie-list": {
+        "/v1/movie-find": {
             "get": {
-                "description": "Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting.",
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Searches for movies by a fragment of the title or by a fragment of an actor's name. Available to both 'admin' and 'user' roles.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "movie"
+                ],
+                "summary": "Searches for movies by title or actor name",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fragment of the movie title",
+                        "name": "title",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Fragment of the actor's name",
+                        "name": "actor",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully found movies",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/models.Movie"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
+                    },
+                    "500": {
+                        "description": "Error retrieving movie list"
+                    }
+                }
+            }
+        },
+        "/v1/movie-list": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting. Available to both 'admin' and 'user' roles.",
                 "produces": [
                     "application/json"
                 ],
@@ -386,6 +526,13 @@ const docTemplate = `{
                 ],
                 "summary": "Lists all movies",
                 "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Bearer [JWT token]",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
                     {
                         "type": "string",
                         "description": "Sort by [title|rating|releasedate], prepend '-' for descending order (default: '-rating')",
@@ -403,11 +550,14 @@ const docTemplate = `{
                             }
                         }
                     },
+                    "401": {
+                        "description": "Unauthorized or Invalid token"
+                    },
+                    "403": {
+                        "description": "Forbidden - Role not allowed"
+                    },
                     "500": {
-                        "description": "Error retrieving movie list",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Error retrieving movie list"
                     }
                 }
             }

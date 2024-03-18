@@ -12,7 +12,7 @@ import (
 )
 
 type Postgresql struct {
-	db *gorm.DB
+	DB *gorm.DB
 }
 
 // NewPostgreSQL creates and returns a new Postgresql instance
@@ -40,19 +40,19 @@ func NewPostgreSQL(ctx context.Context) (*Postgresql, error) {
 		log.Fatal().Interface("unable to automigrate: %v", err).Msg("")
 	}
 
-	return &Postgresql{db: conn}, nil
+	return &Postgresql{DB: conn}, nil
 }
 
 // Ping checks the connection to the PostgreSQL database
 // It verifies that the database is accessible and responding to queries
 // Returns an error if the database is unreachable or not responding
 func (pg *Postgresql) Ping(ctx context.Context) error {
-	db, err := pg.db.DB()
+	DB, err := pg.DB.DB()
 	if err != nil {
 		log.Fatal().Interface("unable to create postgresql connection pool: %v", err).Msg("")
 	}
 
-	return db.Ping()
+	return DB.Ping()
 }
 
 // Close terminates the PostgreSQL database connection
@@ -60,9 +60,9 @@ func (pg *Postgresql) Ping(ctx context.Context) error {
 // Logs a fatal error if closing the connection pool fails
 func (pg *Postgresql) Close() {
 
-	db, err := pg.db.DB()
+	DB, err := pg.DB.DB()
 	if err != nil {
 		log.Fatal().Interface("unable to create postgresql connection pool: %v", err).Msg("")
 	}
-	db.Close()
+	DB.Close()
 }

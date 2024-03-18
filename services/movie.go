@@ -14,16 +14,21 @@ import (
 
 // MovieAdd godoc
 //
-//	@Summary		Adds a new movie
-//	@Description	Adds a new movie with the given details including title, description, release date, and rating
-//	@Tags			movie
-//	@Accept			json
-//	@Produce		json
-//	@Param			movie	body		models.Movie	true	"Movie to add"
-//	@Success		200		{object}	models.Movie	"Successfully added the movie"
-//	@Failure		400		{string}	string			"Invalid request body"
-//	@Failure		500		{string}	string			"Error creating movie"
-//	@Router			/movie-add [post]
+// @Security ApiKeyAuth
+// @SecurityRequirement ApiKeyAuth
+// @Summary Adds a new movie
+// @Description Adds a new movie with the given details including title, description, release date, and rating. Requires 'admin' role.
+// @Tags movie
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer [JWT token]"
+// @Param movie body models.Movie true "Movie to add"
+// @Success 200 {object} models.Movie "Successfully added the movie"
+// @Failure 400 "Invalid request body"
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
+// @Failure 500 "Error creating movie"
+// @Router /v1/movie-add [post]
 func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieAdd called")
@@ -39,7 +44,7 @@ func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.
 	formattedDate := utils.FormatTime(data.ReleaseDate)
 	data.ReleaseDate = formattedDate
 
-	if err := PG.db.Create(&data).Error; err != nil {
+	if err := PG.DB.Create(&data).Error; err != nil {
 		log.Error().Err(err).Msg("Error creating actor")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil, err
@@ -50,18 +55,23 @@ func (PG *Postgresql) MovieAdd(w http.ResponseWriter, r *http.Request) (*models.
 
 // MovieEdit godoc
 //
-//	@Summary		Edits an existing movie
-//	@Description	Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors
-//	@Tags			movie
-//	@Accept			json
-//	@Produce		json
-//	@Param			id		path		int						true	"Movie ID"
-//	@Param			updates	body		map[string]interface{}	true	"Fields to update"
-//	@Success		200		{object}	models.Movie			"Successfully updated the movie"
-//	@Failure		400		{string}	string					"Invalid request body or movie ID"
-//	@Failure		404		{string}	string					"Movie not found"
-//	@Failure		500		{string}	string					"Error saving movie"
-//	@Router			/movie-edit/{id} [put]
+// @Security ApiKeyAuth
+// @SecurityRequirement ApiKeyAuth
+// @Summary Edits an existing movie
+// @Description Edits a movie with the specified ID based on the given update fields such as title, description, release date, rating, and associated actors. Requires 'admin' role.
+// @Tags movie
+// @Accept json
+// @Produce json
+// @Param Authorization header string true "Bearer [JWT token]"
+// @Param id path int true "Movie ID"
+// @Param updates body map[string]interface{} true "Fields to update"
+// @Success 200 {object} models.Movie "Successfully updated the movie"
+// @Failure 400 "Invalid request body or movie ID"
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
+// @Failure 404 "Movie not found"
+// @Failure 500 "Error saving movie"
+// @Router /v1/movie-edit/{id} [put]
 func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieEdit called")
@@ -83,7 +93,7 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 	}
 
 	log.Debug().Int("movieID", movieID).Msg("Fetching movie from database")
-	if err := PG.db.Preload("Actors").First(&data, "id = ?", movieID).Error; err != nil {
+	if err := PG.DB.Preload("Actors").First(&data, "id = ?", movieID).Error; err != nil {
 		log.Error().Err(err).Msg("Movie not found")
 		http.Error(w, "Movie not found", http.StatusNotFound)
 		return nil, err
@@ -97,7 +107,7 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 	}
 
 	log.Debug().Interface("updates", updates).Msg("Applying updates to movie")
-	if err := PG.db.First(&data, "id = ?", movieID).Error; err != nil {
+	if err := PG.DB.First(&data, "id = ?", movieID).Error; err != nil {
 		log.Error().Err(err).Msg("Movie not found for updating")
 		http.Error(w, "Movie not found", http.StatusNotFound)
 		return nil, err
@@ -148,7 +158,7 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		}
 
 		if len(actorsToAdd) > 0 {
-			if err := PG.db.Model(&data).Association("Actors").Append(actorsToAdd); err != nil {
+			if err := PG.DB.Model(&data).Association("Actors").Append(actorsToAdd); err != nil {
 				log.Error().Err(err).Msg("Failed to add actors")
 				http.Error(w, err.Error(), http.StatusInternalServerError)
 				return nil, err
@@ -156,11 +166,11 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 		}
 		if len(actorsToRemove) > 0 {
 			log.Debug().Interface("actorsToRemove", actorsToAdd).Msg("Removing actors to movie")
-			PG.db.Model(&data).Association("Actors").Delete(actorsToRemove)
+			PG.DB.Model(&data).Association("Actors").Delete(actorsToRemove)
 		}
 	}
 
-	if err := PG.db.Save(&data).Error; err != nil {
+	if err := PG.DB.Save(&data).Error; err != nil {
 		log.Error().Err(err).Msg("Error saving movie")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil, err
@@ -171,21 +181,26 @@ func (PG *Postgresql) MovieEdit(w http.ResponseWriter, r *http.Request) (*models
 }
 
 // MovieList godoc
+//
+// @Security ApiKeyAuth
+// @SecurityRequirement ApiKeyAuth
 // @Summary Lists all movies
-// @Description Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting.
+// @Description Retrieves a list of all movies, including their titles, descriptions, release dates, ratings, and associated actors with sorting. Available to both 'admin' and 'user' roles.
 // @Tags movie
 // @Produce json
+// @Param Authorization header string true "Bearer [JWT token]"
 // @Param sort query string false "Sort by [title|rating|releasedate], prepend '-' for descending order (default: '-rating')"
 // @Success 200 {array} models.Movie "Successfully retrieved all movies"
-// @Failure 500 {string} string "Error retrieving movie list"
-// @Router /movie-list [get]
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
+// @Failure 500 "Error retrieving movie list"
+// @Router /v1/movie-list [get]
 func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]models.Movie, error) {
 	log.Info().Msg("MovieList called")
 
 	var data []models.Movie
 	sortParam := r.URL.Query().Get("sort")
 
-	// Default sorting is by rating in descending order
 	sortOrder := "rating DESC"
 	if sortParam != "" {
 		// Map query parameters to database columns
@@ -198,13 +213,12 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 			"-releasedate": "release_date DESC",
 		}
 
-		// Check if the sort parameter is valid and set the sortOrder accordingly
 		if val, ok := sortFields[sortParam]; ok {
 			sortOrder = val
 		}
 	}
 
-	if err := PG.db.Preload("Actors").Order(sortOrder).Find(&data).Error; err != nil {
+	if err := PG.DB.Preload("Actors").Order(sortOrder).Find(&data).Error; err != nil {
 		log.Error().Err(err).Msg("Error retrieving movie list")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return nil, err
@@ -214,17 +228,67 @@ func (PG *Postgresql) MovieList(w http.ResponseWriter, r *http.Request) (*[]mode
 	return &data, nil
 }
 
+// MovieFind godoc
+//
+// @Security ApiKeyAuth
+// @SecurityRequirement ApiKeyAuth
+// @Summary Searches for movies by title or actor name
+// @Description Searches for movies by a fragment of the title or by a fragment of an actor's name. Available to both 'admin' and 'user' roles.
+// @Tags movie
+// @Produce json
+// @Param Authorization header string true "Bearer [JWT token]"
+// @Param title query string false "Fragment of the movie title"
+// @Param actor query string false "Fragment of the actor's name"
+// @Success 200 {array} models.Movie "Successfully found movies"
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
+// @Failure 500 "Error retrieving movie list"
+// @Router /v1/movie-find [get]
+func (PG *Postgresql) MovieFind(w http.ResponseWriter, r *http.Request) (*[]models.Movie, error) {
+
+	log.Info().Msg("MovieFind called")
+
+	var movies []models.Movie
+	title := r.URL.Query().Get("title")
+	actor := r.URL.Query().Get("actor")
+
+	query := PG.DB.Model(&models.Movie{})
+
+	if title != "" {
+		query = query.Where("title ILIKE ?", "%"+title+"%")
+	}
+
+	if actor != "" {
+		query = query.Joins("JOIN actormovies ON actormovies.movie_id = movies.id").
+			Joins("JOIN actors ON actors.id = actormovies.actor_id").
+			Where("actors.name ILIKE ?", "%"+actor+"%")
+	}
+
+	if err := query.Preload("Actors").Find(&movies).Error; err != nil {
+		log.Error().Err(err).Msg("Error searching for movies")
+		http.Error(w, "Error searching for movies", http.StatusInternalServerError)
+		return nil, err
+	}
+
+	return &movies, nil
+}
+
 // MovieDelete godoc
 //
-//	@Summary		Deletes a movie
-//	@Description	Deletes the movie with the specified ID, including removing all associations with actors
-//	@Tags			movie
-//	@Produce		json
-//	@Param			id	path		int		true	"Movie ID"
-//	@Success		200	{string}	string	"Successfully deleted the movie"
-//	@Failure		400	{string}	string	"Invalid movie ID or URL format"
-//	@Failure		500	{string}	string	"Movie not found or could not be deleted"
-//	@Router			/movie-delete/{id} [delete]
+// @Security ApiKeyAuth
+// @SecurityRequirement ApiKeyAuth
+// @Summary Deletes a movie
+// @Description Deletes the movie with the specified ID, including removing all associations with actors. Requires 'admin' role.
+// @Tags movie
+// @Produce json
+// @Param Authorization header string true "Bearer [JWT token]"
+// @Param id path int true "Movie ID"
+// @Success 200 "Successfully deleted the movie"
+// @Failure 400 "Invalid movie ID or URL format"
+// @Failure 401 "Unauthorized or Invalid token"
+// @Failure 403 "Forbidden - Role not allowed"
+// @Failure 500 "Movie not found or could not be deleted"
+// @Router /v1/movie-delete/{id} [delete]
 func (PG *Postgresql) MovieDelete(w http.ResponseWriter, r *http.Request) (*models.Movie, error) {
 
 	log.Info().Msg("MovieDelete called")
@@ -245,13 +309,13 @@ func (PG *Postgresql) MovieDelete(w http.ResponseWriter, r *http.Request) (*mode
 		return nil, err
 	}
 
-	if err := PG.db.Exec("DELETE FROM actormovies WHERE movie_id = ?", movieID).Error; err != nil {
+	if err := PG.DB.Exec("DELETE FROM actormovies WHERE movie_id = ?", movieID).Error; err != nil {
 		log.Error().Err(err).Msg("Failed to delete associated records from the join table")
 		http.Error(w, "Failed to delete associated records from the join table", http.StatusInternalServerError)
 		return nil, err
 	}
 
-	if err := PG.db.Where("id = ?", movieID).Delete(&models.Movie{}).Error; err != nil {
+	if err := PG.DB.Where("id = ?", movieID).Delete(&models.Movie{}).Error; err != nil {
 		log.Error().Err(err).Msg("Movie not found or could not be deleted")
 		http.Error(w, "Movie not found or could not be deleted", http.StatusInternalServerError)
 		return nil, err

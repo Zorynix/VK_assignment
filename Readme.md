@@ -7,10 +7,10 @@
 - [x] Post movies
 - [x] Put movies
 - [x] Delete movies
-- [ ] Find movie (add)
+- [x] Search movie
 
 
-- [ ] Unit tests (70%)
+- [ ] Unit tests
 - [x] roles
 - [x] Dockerfile
 - [x] docker-compose
