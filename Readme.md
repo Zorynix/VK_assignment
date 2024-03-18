@@ -7,12 +7,12 @@
 - [x] Post movies
 - [x] Put movies
 - [x] Delete movies
-- [ ] Find movie (add)
+- [x] Search movie
 
 
-- [ ] Unit tests (70%)(add)
+- [ ] Unit tests
 - [x] roles
 - [x] Dockerfile
 - [x] docker-compose
 - [x] logging
-- [ ] swagger
+- [x] swagger
