@@ -50,8 +50,13 @@ paths:
     post:
       consumes:
       - application/json
-      description: Adds a new actor with the given details
+      description: Adds a new actor with the given details. Requires 'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Actor to add
         in: body
         name: actor
@@ -67,20 +72,27 @@ paths:
             $ref: '#/definitions/models.Actor'
         "400":
           description: Invalid request body
-          schema:
-            $ref: '#/definitions/models.Actor'
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Error creating actor
-          schema:
-            $ref: '#/definitions/models.Actor'
+      security:
+      - ApiKeyAuth: []
       summary: Adds a new actor
       tags:
       - actor
   /v1/actor-delete/{id}:
     delete:
       description: Deletes the actor with the specified ID, including removing all
-        associated movies
+        associated movies. Requires 'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Actor ID
         in: path
         name: id
@@ -91,16 +103,16 @@ paths:
       responses:
         "200":
           description: Successfully deleted the actor
-          schema:
-            type: string
         "400":
           description: Invalid actor ID or URL format
-          schema:
-            type: string
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Actor not found or could not be deleted
-          schema:
-            type: string
+      security:
+      - ApiKeyAuth: []
       summary: Deletes an actor
       tags:
       - actor
@@ -109,8 +121,13 @@ paths:
       consumes:
       - application/json
       description: Edits an actor with the specified ID based on the given update
-        fields
+        fields. Requires 'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Actor ID
         in: path
         name: id
@@ -132,22 +149,29 @@ paths:
             $ref: '#/definitions/models.Actor'
         "400":
           description: Invalid request body or actor ID
-          schema:
-            $ref: '#/definitions/models.Actor'
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "404":
           description: Actor not found
-          schema:
-            $ref: '#/definitions/models.Actor'
         "500":
           description: Failed to save actor
-          schema:
-            $ref: '#/definitions/models.Actor'
+      security:
+      - ApiKeyAuth: []
       summary: Edits an existing actor
       tags:
       - actor
   /v1/actor-list:
     get:
-      description: Retrieves a list of all actors, including their associated movies
+      description: Retrieves a list of all actors, including their associated movies.
+        Available to both 'admin' and 'user' roles.
+      parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -157,12 +181,14 @@ paths:
             items:
               $ref: '#/definitions/models.Actor'
             type: array
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Error retrieving actors
-          schema:
-            items:
-              $ref: '#/definitions/models.Actor'
-            type: array
+      security:
+      - ApiKeyAuth: []
       summary: Lists all actors
       tags:
       - actor
@@ -195,8 +221,13 @@ paths:
       consumes:
       - application/json
       description: Adds a new movie with the given details including title, description,
-        release date, and rating
+        release date, and rating. Requires 'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Movie to add
         in: body
         name: movie
@@ -212,20 +243,27 @@ paths:
             $ref: '#/definitions/models.Movie'
         "400":
           description: Invalid request body
-          schema:
-            $ref: '#/definitions/models.Movie'
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Error creating movie
-          schema:
-            $ref: '#/definitions/models.Movie'
+      security:
+      - ApiKeyAuth: []
       summary: Adds a new movie
       tags:
       - movie
   /v1/movie-delete/{id}:
     delete:
       description: Deletes the movie with the specified ID, including removing all
-        associations with actors
+        associations with actors. Requires 'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Movie ID
         in: path
         name: id
@@ -236,16 +274,16 @@ paths:
       responses:
         "200":
           description: Successfully deleted the movie
-          schema:
-            type: string
         "400":
           description: Invalid movie ID or URL format
-          schema:
-            type: string
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Movie not found or could not be deleted
-          schema:
-            type: string
+      security:
+      - ApiKeyAuth: []
       summary: Deletes a movie
       tags:
       - movie
@@ -254,8 +292,14 @@ paths:
       consumes:
       - application/json
       description: Edits a movie with the specified ID based on the given update fields
-        such as title, description, release date, rating, and associated actors
+        such as title, description, release date, rating, and associated actors. Requires
+        'admin' role.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Movie ID
         in: path
         name: id
@@ -277,24 +321,29 @@ paths:
             $ref: '#/definitions/models.Movie'
         "400":
           description: Invalid request body or movie ID
-          schema:
-            $ref: '#/definitions/models.Movie'
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "404":
           description: Movie not found
-          schema:
-            $ref: '#/definitions/models.Movie'
         "500":
           description: Error saving movie
-          schema:
-            $ref: '#/definitions/models.Movie'
+      security:
+      - ApiKeyAuth: []
       summary: Edits an existing movie
       tags:
       - movie
   /v1/movie-find:
     get:
       description: Searches for movies by a fragment of the title or by a fragment
-        of an actor's name
+        of an actor's name. Available to both 'admin' and 'user' roles.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: Fragment of the movie title
         in: query
         name: title
@@ -312,26 +361,28 @@ paths:
             items:
               $ref: '#/definitions/models.Movie'
             type: array
-        "400":
-          description: Invalid query parameters
-          schema:
-            items:
-              $ref: '#/definitions/models.Movie'
-            type: array
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Error retrieving movie list
-          schema:
-            items:
-              $ref: '#/definitions/models.Movie'
-            type: array
+      security:
+      - ApiKeyAuth: []
       summary: Searches for movies by title or actor name
       tags:
       - movie
   /v1/movie-list:
     get:
       description: Retrieves a list of all movies, including their titles, descriptions,
-        release dates, ratings, and associated actors with sorting.
+        release dates, ratings, and associated actors with sorting. Available to both
+        'admin' and 'user' roles.
       parameters:
+      - description: Bearer [JWT token]
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: 'Sort by [title|rating|releasedate], prepend ''-'' for descending
           order (default: ''-rating'')'
         in: query
@@ -346,12 +397,14 @@ paths:
             items:
               $ref: '#/definitions/models.Movie'
             type: array
+        "401":
+          description: Unauthorized or Invalid token
+        "403":
+          description: Forbidden - Role not allowed
         "500":
           description: Error retrieving movie list
-          schema:
-            items:
-              $ref: '#/definitions/models.Movie'
-            type: array
+      security:
+      - ApiKeyAuth: []
       summary: Lists all movies
       tags:
       - movie
