@@ -10,7 +10,7 @@ import (
 )
 
 type Router struct {
-	PG *services.Postgresql
+	PG services.Database
 }
 
 func Routes(addr *string) {

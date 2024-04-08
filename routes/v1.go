@@ -14,7 +14,7 @@ func (router *Router) V1Routes() {
 
 	http.HandleFunc("/swagger/", httpSwagger.WrapHandler)
 
-	http.HandleFunc("/v1/login", router.LoginHandler)
+	http.HandleFunc("/v1/auth", router.LoginHandler)
 
 	http.Handle("/v1/actor-add", middleware.AuthMiddleware(http.HandlerFunc(router.ActorAddRoute), "admin"))
 	http.Handle("/v1/actor-edit/", middleware.AuthMiddleware(http.HandlerFunc(router.ActorEditRoute), "admin"))

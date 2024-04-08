@@ -11,7 +11,7 @@ import (
 type View struct {
 	W  http.ResponseWriter
 	R  *http.Request
-	PG *services.Postgresql
+	PG services.Database
 }
 
 // respondWithJSON takes any data interface{}, serializes it to JSON, and writes it to the HTTP response.
